@@ -1,6 +1,4 @@
-build
 node_modules
-src/css
 npm-debug.log
 .DS_Store
 .aws.json
