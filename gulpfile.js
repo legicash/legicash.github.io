@@ -1,7 +1,9 @@
 var syntax        = 'sass'; // Syntax: sass or scss;
-
+var srcPath       = 'app/';
+var distPath      = 'dist/';
 var gulp          = require('gulp'),
-		gutil         = require('gulp-util' ),
+		include       = require('gulp-include'),
+		imagemin      = require('gulp-imagemin'),
 		sass          = require('gulp-sass'),
 		browsersync   = require('browser-sync'),
 		concat        = require('gulp-concat'),
@@ -10,12 +12,33 @@ var gulp          = require('gulp'),
 		rename        = require('gulp-rename'),
 		autoprefixer  = require('gulp-autoprefixer'),
 		notify        = require("gulp-notify"),
-		rsync         = require('gulp-rsync');
+		sourcemaps    = require("gulp-sourcemaps");
 
+// Paths that gulp should watch
+var watchPaths        = {
+    scripts:     [
+        srcPath+'assets/js/*.js',
+        srcPath+'assets/js/**/*.js'
+    ],
+    images:     [
+        srcPath+'assets/img/**'
+    ],
+    sass:         [
+        srcPath+'assets/sass/*.scss',
+        srcPath+'assets/sass/**/*.scss'
+    ],
+    fonts:      [
+        srcPath+'assets/fonts/**'
+    ],
+    html:          [
+        srcPath+'**/*.html',
+        srcPath+'**/*.php'
+    ]
+};
 gulp.task('browser-sync', function() {
 	browsersync({
 		server: {
-			baseDir: 'app'
+			baseDir: 'dist'
 		},
 		notify: false,
 		// open: false,
@@ -23,47 +46,74 @@ gulp.task('browser-sync', function() {
 		// tunnel: "projectname", //Demonstration page: http://projectname.localtunnel.me
 	})
 });
-
-gulp.task('styles', function() {
-	return gulp.src('app/'+syntax+'/**/*.'+syntax+'')
-	.pipe(sass({ outputStyle: 'expand' }).on("error", notify.onError()))
-	.pipe(rename({ suffix: '.min', prefix : '' }))
-	.pipe(autoprefixer(['last 15 versions']))
-	.pipe(cleancss( {level: { 1: { specialComments: 0 } } })) // Opt., comment out when debugging
-	.pipe(gulp.dest('app/css'))
-	.pipe(browsersync.reload( {stream: true} ))
+// Task for sass files
+gulp.task('sass', function () {
+    gulp
+        .src(srcPath + 'assets/sass/main.sass')
+        .pipe(include())
+        .pipe(sass({ outputStyle: 'expand' }))
+        .on("error", notify.onError({ message: "Error: <%= error.message %>", title: "Error running sass task" }))
+        .pipe(autoprefixer({ browsers: ['> 1%', 'last 2 versions'], cascade: false }))
+        .on("error", notify.onError({ message: "Error: <%= error.message %>", title: "Error running sass task" }))
+        .pipe(cleancss( {level: { 1: { specialComments: 0 } } }))
+        .on("error", notify.onError({ message: "Error: <%= error.message %>", title: "Error running sass task" }))
+        .pipe(rename({ suffix: '.min' }))
+        .pipe(gulp.dest(distPath + 'assets/css'))
+				.pipe(browsersync.reload( {stream: true} ));
 });
 
-gulp.task('js', function() {
-	return gulp.src([
-		'app/libs/jquery/dist/jquery.min.js',
-		'app/js/common.js', // Always at the end
-		])
-	.pipe(concat('scripts.min.js'))
-	// .pipe(uglify()) // Mifify js (opt.)
-	.pipe(gulp.dest('app/js'))
-	.pipe(browsersync.reload({ stream: true }))
+// Javscript task
+gulp.task('scripts', function(){
+    gulp
+        .src([
+					'app/assets/js/libs/jquery/dist/jquery.min.js',
+					'app/assets/js/common.js', // Always at the end
+					])
+        .pipe(include())
+				.pipe(concat('scripts.js'))
+        .pipe(sourcemaps.init())
+        // .pipe(uglify())
+        .on("error", notify.onError({ message: "Error: <%= error.message %>", title: "Error running scripts task" }))
+        .pipe(rename({ suffix: '.min' }))
+        .pipe(sourcemaps.write('maps'))
+        .pipe(gulp.dest(distPath + 'assets/js'))
+				.pipe(browsersync.reload( {stream: true} ));
 });
 
-gulp.task('rsync', function() {
-	return gulp.src('app/**')
-	.pipe(rsync({
-		root: 'app/',
-		hostname: 'username@yousite.com',
-		destination: 'yousite/public_html/',
-		// include: ['*.htaccess'], // Includes files to deploy
-		exclude: ['**/Thumbs.db', '**/*.DS_Store'], // Excludes files from deploy
-		recursive: true,
-		archive: true,
-		silent: false,
-		compress: true
-	}))
+// Font task
+gulp.task('fonts', function () {
+    gulp
+        .src([srcPath + 'assets/fonts/**'])
+        .pipe(gulp.dest(distPath + 'assets/fonts'));
 });
 
-gulp.task('watch', ['styles', 'js', 'browser-sync'], function() {
-	gulp.watch('app/'+syntax+'/**/*.'+syntax+'', ['styles']);
-	gulp.watch(['libs/**/*.js', 'app/js/common.js'], ['js']);
-	gulp.watch('app/*.html', browsersync.reload)
+// HTML task
+gulp.task('html', function () {
+    gulp
+        .src([srcPath + '*.html'])
+        .pipe(include())
+        .on("error", notify.onError({ message: "Error: <%= error.message %>", title: "Error running html task" }))
+        .pipe(gulp.dest(distPath));
 });
 
-gulp.task('default', ['watch']);
+// Images task
+gulp.task('images', function () {
+    gulp
+        .src(srcPath + 'assets/img/**')
+        .pipe(imagemin())
+        .on("error", notify.onError({ message: "Error: <%= error.message %>", title: "Error running image task" }))
+        .pipe(gulp.dest(distPath + 'assets/img'));
+});
+
+// Watch task
+gulp.task('watch', function() {
+    gulp.watch(watchPaths.scripts, ['scripts']);
+    gulp.watch(watchPaths.images, ['images']);
+    gulp.watch(watchPaths.sass, ['sass']);
+    gulp.watch(watchPaths.html, ['html']);
+    gulp.watch(watchPaths.fonts, ['fonts']);
+
+    gulp.watch(distPath + '**').on('change', browsersync.reload);
+});
+gulp.task('build', ['scripts', 'images', 'sass', 'fonts', 'html'])
+gulp.task('default', ['build', 'watch', 'browser-sync']);
