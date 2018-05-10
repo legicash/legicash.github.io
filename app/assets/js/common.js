@@ -48,8 +48,11 @@ $(function () {
 
 
 	function popup() {
+		// console.log($(this).siblings())
+		console.log($(this).siblings('.popup__container'))
 		$('.popup__container').show()
-		$('.popup').animate({
+		$(this).siblings('.popup').css('z-index', '100');
+		$(this).siblings('.popup').animate({
 			opacity: '1'
 		}, 500)
 	}
@@ -59,6 +62,9 @@ $(function () {
 		$('.popup').animate({
 			opacity: '0'
 		}, 500)
+		setTimeout(() => {
+			$('.popup').css('z-index', '-2')
+		}, 500);
 
 		$('.popup__container').hide(500)
 	}
