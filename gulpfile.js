@@ -24,8 +24,8 @@ var watchPaths        = {
         srcPath+'assets/img/**'
     ],
     sass:         [
-        srcPath+'assets/sass/*.scss',
-        srcPath+'assets/sass/**/*.scss'
+        srcPath+'assets/sass/*.sass',
+        srcPath+'assets/sass/**/*.sass'
     ],
     fonts:      [
         srcPath+'assets/fonts/**'

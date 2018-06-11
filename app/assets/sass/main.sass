@@ -367,15 +367,18 @@
 	margin-bottom: 124px
 	&__social
 		display: flex
-		position: absolute
+		position: relative
 		bottom: 0
 		margin-bottom: -40px
-		justify-content: space-between
 		width: 197px
 		&__item
 			width: 40px
+			background-repeat: no-repeat
+			margin-right: 12.3px
 			height: 40px
 			transition: all 0.7s ease
+			&:last-child
+				margin-right: 0
 	&__text
 		margin-bottom: 175px
 	&__logo
@@ -392,7 +395,10 @@
 		margin-bottom: 46px
 .founders
 	// width: 100%
-	margin-bottom: 100px
+	&__media
+		display: flex
+		flex-direction: column
+		margin-bottom: 100px
 	&:last-child
 		margin-bottom: 90px
 	&__profile
@@ -552,6 +558,32 @@
 			background-image: url('../img/assets/social/gitlab-gray.png')
 			&:hover
 				background-image: url('../img/assets/social/gitlab-black.png')
+#popup
+	&__twitter
+		background-image: url('../img/assets/social/twitter-logo-button-gray.svg')
+		&:hover
+			background-image: url('../img/assets/social/twitter-logo-button_orange.png')
+	&__facebook
+		background-image: url('../img/assets/social/facebook-logo-button-gray.svg')
+		&:hover
+			background-image: url('../img/assets/social/facebook-logo-button_orange.png')
+	&__slack
+			background-image: url('../img/assets/social/slack-logo-button-gray.svg')
+			&:hover
+				background-image: url('../img/assets/social/slack-logo-button_orange.png')
+	&__telegram
+		background-image: url('../img/assets/social/telegram-logo-button-gray.svg')
+		&:hover
+			background-image: url('../img/assets/social/telegram-logo-button_orange.png')
+	&__linkedin
+		background-image: url('../img/assets/social/linkedin-logo-button_gray.svg')
+		&:hover
+			background-image: url('../img/assets/social/linkedin-logo-button_orange.svg')
+	&__link
+		background-image: url('../img/assets/social/link-logo-button_gray.svg')
+		&:hover
+			background-image: url('../img/assets/social/link-logo-button_orange.svg')
+
 #footer
 	&__twitter
 		background-image: url('../img/assets/social/twitter-logo-button.png')
@@ -609,15 +641,38 @@
 		width: 414px
 	&__title
 		margin-top: 55px
-		margin-bottom: 24px
+		margin-bottom: 0
 		color: $main
 		font-size: 24px
-		line-height: 29px
+		line-height: 22px
 	&__vita
 		color: #404040
 		font-size: 14px
 		line-height: 20px
+		max-height: 380px
+		overflow-y: scroll
 		font-weight: 300
+	&__position
+		font-size: 18px
+		display: block
+		color: $main
+		margin-bottom: 12px
+		font-style: oblique
+	&__social
+		display: flex
+		position: absolute
+		bottom: 0
+		margin-bottom: 25px
+		width: 197px
+		&__item
+			width: 40px
+			background-repeat: no-repeat
+			background-size: contain;
+			margin-right: 12.3px
+			height: 40px
+			transition: all 0.7s ease
+			&:last-child
+				margin-right: 0
 
 /*ADVISORS END POPUP*/
 
